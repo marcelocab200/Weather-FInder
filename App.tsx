@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import { Image, ImageBackground, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Image, ImageBackground, SafeAreaView, StyleSheet, Text, TextInput, View } from 'react-native';
 
 import { useState, useEffect } from 'react';
 
@@ -51,8 +51,8 @@ export default function App() {
       <StatusBar style="auto" />
       <View style={styles.searchContainer}>
         <Image source={require("./assets/SearchIcon.png")}/>
-        <View>
-          <Text style={{fontFamily: "Cabin", color: "rgba(255, 255, 255, 0.7)"}}>Pesquisar localidade</Text>
+        <View style={{flex: 1, marginLeft: 4}}>
+          <TextInput style={{fontFamily: "Cabin", color: "rgba(255, 255, 255, 0.7)", width: "100%", marginLeft: 5}} placeholder={"Pesquisar localidade"} placeholderTextColor={"rgba(255, 255, 255, 0.7)"}/>
           <View style={{height: 1, backgroundColor: "rgba(255, 255, 255, 0.4)"}}></View>
         </View>
       </View>
@@ -69,6 +69,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   searchContainer: {
-    flexDirection: "row"
+    flexDirection: "row",
+    alignItems: "center",
+    width: "80%"
   }
 });
