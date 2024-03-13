@@ -98,7 +98,7 @@ export default function App() {
         </View>
         <View style={{flex: 1, backgroundColor: "red"}}>
           <MainWeatherInfoCard icon={require("./assets/MinTempIcon.png")} value={24} measure={"ºC"}/>
-          <MainWeatherInfoCard icon={require("./assets/MaxTempIcon.png")} value={24} measure={"ºC"}/>
+          <MainWeatherInfoCard icon={require("./assets/MaxTempIcon.png")} value={28} measure={"ºC"}/>
           <MainWeatherInfoCard icon={require("./assets/UmidityIcon.png")} value={24} measure={"%"}/>
           <MainWeatherInfoCard icon={require("./assets/WindIcon.png")} value={24} measure={"km/h"}/>
         </View>
