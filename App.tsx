@@ -1,4 +1,3 @@
-import { StatusBar as StatusBarExpo } from "expo-status-bar";
 import {
   Image,
   ImageBackground,
@@ -9,24 +8,73 @@ import {
   View,
   ActivityIndicator,
   ImageSourcePropType,
-  StatusBar
+  StatusBar,
+  KeyboardAvoidingView,
+  Dimensions,
+  Alert
 } from "react-native";
 
 import { useState, useEffect } from "react";
 
+
 import { useFonts } from "expo-font";
+
+import * as Location from "expo-location";
+
+import { StatusBar as StatusBarExpo } from "expo-status-bar";
+
 
 import Api from "./src/services/api";
 
-import * as Location from "expo-location";
 import { API_KEY } from "@env";
 
-// console.log(API_KEY)
+
+import { AxiosError, AxiosResponse } from "axios";
+
+
+var { width, height } = Dimensions.get("window");
+var vw = width / 100;
+var vh = height / 100;
+
 
 export default function App() {
+
   const [location, setLocation] = useState<Location.LocationObject | null>(
     null
   );
+  const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
+
+  useEffect(() => {
+    (async () => {
+
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        // setErrorMsg('Permission to access location was denied');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync();
+      setLocation(location);
+
+      // Faz a requisição para a Forecast API da Weather API
+      try{
+        const response = await Api.get('forecast.json', {
+          params: {
+            key: API_KEY,
+            q: `${location.coords.latitude},${location.coords.longitude}`, // query de requisição que leva em consideração a latitude e longitude da localização
+            days: 1,
+            lang: 'pt'
+          }
+        })
+        setWeatherInfo(response);
+        console.log(response)
+      }catch(error: any){
+        Alert.alert("OPS! Ocorreu um erro:", error)
+        console.log(error)
+      }
+
+    })();
+  }, []);
 
   const [fontsLoaded] = useFonts({
     "Cabin-Bold": require("./assets/fonts/Cabin-Bold.ttf"),
@@ -41,36 +89,6 @@ export default function App() {
     );
   }
 
-  // useEffect(() => {
-  //   (async () => {
-
-  //     let { status } = await Location.requestForegroundPermissionsAsync();
-  //     if (status !== 'granted') {
-  //       // setErrorMsg('Permission to access location was denied');
-  //       return;
-  //     }
-
-  //     let location = await Location.getCurrentPositionAsync({});
-  //     console.log(location)
-  //     setLocation(location);
-
-  //     // Faz a requisição para a Realtime API da Weather API
-  //     try{
-  //       const response = await Api.get('/current.json', {
-  //         params: {
-  //           key: API_KEY,
-  //           q: `${location.coords.latitude},${location.coords.longitude}`,
-  //           lang: 'pt'
-  //         }
-  //       })
-  //       console.log(JSON.stringify(response))
-  //     }catch(error){
-  //       console.log(error)
-  //     }
-
-  //   })();
-  // }, []);
-
   interface MainWeatherInfoProps {
     value: number;
     measure: string;
@@ -82,25 +100,48 @@ export default function App() {
       <View style={{ flexDirection: "row", alignItems: "center" }}>
         <Image
           source={props.icon}
-          style={{ width: 30, marginRight: 8 }}
+          style={styles.mainWeatherInfoIcon}
           resizeMode="contain"
-        />          
-        <Text style={{fontFamily: "Cabin-Regular", color: "white", fontSize: 16, }}>{props.value}</Text>
-        <Text style={{fontFamily: "Cabin-Regular", color: "white", fontSize: 10, height: 19, textAlignVertical: "bottom"}}> {props.measure}</Text>
+        />
+        <Text
+          style={[styles.regularFont, { fontSize: 16 }]}
+        >
+          {props.value}
+        </Text>
+        <Text
+          style={[styles.regularFont, {
+            fontSize: 10,
+            height: 19,
+            textAlignVertical: "bottom",
+          }]}
+        >
+          {" "}
+          {props.measure}
+        </Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView style={{ flex: 1, width: "100%" }}>
+    <SafeAreaView style={{ height: "100%", width: "100%" }}>
       <ImageBackground
         style={styles.background}
         source={require("./assets/MainScreenBackground.jpg")}
       >
         <StatusBarExpo style={"light"} />
 
-        <View style={{ backgroundColor: "blue", flex: 4, justifyContent: "space-between", width: "100%", alignItems: "center", marginTop: StatusBar.currentHeight, paddingTop: 15, paddingBottom: 40 }}>
-
+        <View
+          style={{
+            backgroundColor: "transparent",
+            height: 45 * vh,
+            justifyContent: "space-between",
+            width: "100%",
+            alignItems: "center",
+            marginTop: StatusBar.currentHeight,
+            paddingTop: 20,
+            paddingBottom: 40,
+          }}
+        >
           <View style={styles.searchContainer}>
             <Image source={require("./assets/SearchIcon.png")} />
             <View style={{ flex: 1, marginLeft: 4 }}>
@@ -113,14 +154,43 @@ export default function App() {
             </View>
           </View>
 
-          <Text style={{textAlign: "center", fontFamily: "Cabin-Bold", color: "rgb(255,255,255)"}}>Uberlândia, Minas Gerais</Text>
+          <View style={{ flexDirection: "row" }}>
+            <Text
+              style={{
+                textAlign: "center",
+                fontFamily: "Cabin-Bold",
+                color: "rgba(255,255,255,0.9)",
+                fontSize: 15,
+              }}
+            >
+              {weatherInfo?.data.location.name},{" "}
+            </Text>
+            <Text
+              style={{
+                textAlign: "center",
+                fontFamily: "Cabin-Bold",
+                color: "rgba(255,255,255,0.75)",
+                fontSize: 15,
+              }}
+            >
+              {weatherInfo?.data.location.region}
+            </Text>
+          </View>
 
           <View style={styles.mainBox}>
-            <View style={{backgroundColor: "transparent"}}>
-              <View style={{ alignItems: "center", justifyContent: "center", height: 100, width: 100, backgroundColor: "transparent" }}>
+            <View style={{ backgroundColor: "transparent" }}>
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                  height: 100,
+                  width: 100,
+                  // backgroundColor: "transparent",
+                }}
+              >
                 <Image
                   source={require("./assets/SunnyCloud.png")}
-                  style={{ left: 15, bottom: 20 }}
+                  style={{ left: 15, bottom: 25 }}
                 />
               </View>
               <View
@@ -132,55 +202,114 @@ export default function App() {
                 }}
               >
                 <Text
-                  style={{
-                    fontSize: 48,
-                    fontFamily: "Cabin-Regular",
-                    color: "white",
-                  }}
+                  style={[styles.regularFont, {fontSize: 48}]}
                 >
-                  24
+                  {weatherInfo?.data.current.temp_c}{"ºC"}
                 </Text>
-                <Text
-                  style={{
-                    fontSize: 48,
-                    fontFamily: "Cabin-Regular",
-                    color: "white",
-                  }}
+                {/* <Text
+                  style={[styles.regularFont, {fontSize: 48}]}
                 >
                   ºC
-                </Text>
+                </Text> */}
               </View>
             </View>
-            <View style={{ backgroundColor: "transparent", justifyContent: "space-between" }}>
-            <MainWeatherInfoCard
-              icon={require("./assets/MinTempIcon.png")}
-              value={24}
-              measure={"ºC"}
-            />
-            <MainWeatherInfoCard
-              icon={require("./assets/MaxTempIcon.png")}
-              value={24}
-              measure={"ºC"}
-            />
-            <MainWeatherInfoCard
-              icon={require("./assets/UmidityIcon.png")}
-              value={24}
-              measure={"%"}
-            />
-            <MainWeatherInfoCard
-              icon={require("./assets/WindIcon.png")}
-              value={24}
-              measure={"km/h"}
-            />
+            <View
+              style={{
+                // backgroundColor: "transparent",
+                justifyContent: "space-between",
+              }}
+            >
+              <MainWeatherInfoCard
+                icon={require("./assets/MinTempIcon.png")}
+                value={weatherInfo?.data.forecast.forecastday[0].day.mintemp_c}
+                measure={"ºC"}
+              />
+              <MainWeatherInfoCard
+                icon={require("./assets/MaxTempIcon.png")}
+                value={weatherInfo?.data.forecast.forecastday[0].day.maxtemp_c}
+                measure={"ºC"}
+              />
+              <MainWeatherInfoCard
+                icon={require("./assets/UmidityIcon.png")}
+                value={weatherInfo?.data.current.precip_mm}
+                measure={"mm"}
+              />
+              <MainWeatherInfoCard
+                icon={require("./assets/WindIcon.png")}
+                value={weatherInfo?.data.current.wind_kph}
+                measure={"km/h"}
+              />
+            </View>
           </View>
-          </View>
+        </View>
+
+        <View
+          style={{ height: 55 * vh, width: "100%", backgroundColor: "transparent", alignItems: "center" }}
+        >
+
+              <View style={{width: "85%", marginBottom: 16}}>
+                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Hoje</Text>
+                <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
+
+                <View style={{width: "95%", alignSelf: "center"}}>
+                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>01:00</Text>
+                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                  </View>
+                  <View style={{flexDirection: "row", gap: 10}}>
+                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
+                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
+                  </View>
+                </View>
+                </View>
+            
+              </View>
+
+              <View style={{width: "85%", marginBottom: 16}}>
+                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Semana</Text>
+                <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
+
+                <View style={{width: "95%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between"}}>
+
+                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
+                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                  </View>
+                  <View style={{flexDirection: "row", gap: 10}}>
+                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
+                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
+                  </View>
+                </View>
+
+                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
+                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                  </View>
+                  <View style={{flexDirection: "row", gap: 10}}>
+                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
+                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
+                  </View>
+                </View>
+
+                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
+                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                  </View>
+                  <View style={{flexDirection: "row", gap: 10}}>
+                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
+                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
+                  </View>
+                </View>
+
+                </View>
+            
+              </View>
 
         </View>
-        
-        <View style={{flex: 6, width: "100%", backgroundColor: "orange"}}>
-
-        </View>
-
       </ImageBackground>
     </SafeAreaView>
   );
@@ -188,10 +317,10 @@ export default function App() {
 
 const styles = StyleSheet.create({
   background: {
-    flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    // width: "100%"
+    width: "100%",
+    height: "100%"
   },
   searchContainer: {
     flexDirection: "row",
@@ -212,6 +341,20 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     backgroundColor: "transparent",
     height: 150,
-    gap: 50
+    gap: 50,
   },
+  regularFont: {
+    // fontSize: 48,
+    fontFamily: "Cabin-Regular",
+    color: "white",
+  },
+  boldFont: {
+    // fontSize: 48,
+    fontFamily: "Cabin-Bold",
+    color: "white",
+  },
+  mainWeatherInfoIcon: { 
+    width: 30, 
+    marginRight: 8 
+  }
 });
