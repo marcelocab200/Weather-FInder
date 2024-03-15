@@ -11,7 +11,8 @@ import {
   StatusBar,
   KeyboardAvoidingView,
   Dimensions,
-  Alert
+  Alert,
+  FlatList
 } from "react-native";
 
 import { useState, useEffect } from "react";
@@ -32,9 +33,11 @@ import { API_KEY } from "@env";
 import { AxiosError, AxiosResponse } from "axios";
 
 
-var { width, height } = Dimensions.get("window");
-var vw = width / 100;
-var vh = height / 100;
+const { width, height } = Dimensions.get("window");
+const vw = width / 100;
+const vh = height / 100;
+
+var days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab']
 
 
 export default function App() {
@@ -62,12 +65,13 @@ export default function App() {
           params: {
             key: API_KEY,
             q: `${location.coords.latitude},${location.coords.longitude}`, // query de requisição que leva em consideração a latitude e longitude da localização
-            days: 1,
+            days: 7,
             lang: 'pt'
           }
         })
         setWeatherInfo(response);
-        console.log(response)
+        console.log(response.data.forecast.forecastday[0].hour[0].time)
+        console.log(new Date(response.data.location.localtime).getHours())
       }catch(error: any){
         Alert.alert("OPS! Ocorreu um erro:", error)
         console.log(error)
@@ -91,7 +95,7 @@ export default function App() {
 
   interface MainWeatherInfoProps {
     value: number;
-    measure: string;
+    measure: "ºC" | "mm" | "km/h";
     icon: ImageSourcePropType;
   }
 
@@ -251,8 +255,41 @@ export default function App() {
                 <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Hoje</Text>
                 <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
 
-                <View style={{width: "95%", alignSelf: "center"}}>
-                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                <FlatList 
+                  data={weatherInfo?.data.forecast.forecastday[0].hour} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
+                  keyExtractor={item => item.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
+                  style={{width: "95%", alignSelf: "center"}}
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({item}) => 
+                    {
+                      let hours = new Date(item.time).getHours()
+                      let currentLocalHours = new Date(weatherInfo?.data.location.localtime).getHours()
+
+                      if (hours == 23) {
+                        return;
+                      }
+
+                      if (hours > currentLocalHours) {
+                        return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>{hours < 10 ? `0${hours}:00` : `${hours}:00`}</Text>
+                                <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                                  <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                                </View>
+                                <View style={{flexDirection: "row", gap: 10}}>
+                                  <Text style={[styles.regularFont, {fontSize: 14}]}>{item.temp_c}ºC</Text>
+                                  {/* <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text> */}
+                                </View>
+                              </View>
+                        )
+                      }
+
+  
+                    }
+                  }
+                  horizontal
+                />
+
+                {/* <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
                   <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>01:00</Text>
                   <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
                     <Image source={require("./assets/MoonCloud.png")} style={{}} />
@@ -261,8 +298,7 @@ export default function App() {
                     <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
                     <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
                   </View>
-                </View>
-                </View>
+                </View> */}
             
               </View>
 
@@ -270,7 +306,37 @@ export default function App() {
                 <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Semana</Text>
                 <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
 
-                <View style={{width: "95%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between"}}>
+                <FlatList 
+                  data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API 
+                  keyExtractor={item => item.date} // Identificador se trata da data vide ser unica a cada item
+                  style={{width: "95%", alignSelf: "center"}}
+                  showsHorizontalScrollIndicator={false}
+                  renderItem={({item}) => 
+                    {
+                      let dayOfWeek = new Date(item.date).getDay()
+                      let currentLocalDay = new Date(weatherInfo?.data.location.localtime).getDay()
+
+                      if (dayOfWeek > currentLocalDay) {
+                        return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
+                                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>{days[dayOfWeek]}</Text>
+                                <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
+                                  <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                                </View>
+                                <View style={{flexDirection: "row", gap: 10}}>
+                                  <Text style={[styles.regularFont, {fontSize: 14}]}>{item.day.maxtemp_c}º</Text>
+                                  <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>{item.day.mintemp_c}º</Text>
+                                </View>
+                              </View>
+                        )
+                      }
+
+  
+                    }
+                  }
+                  horizontal
+                />
+
+                {/* <View style={{width: "95%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between"}}>
 
                 <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
                   <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
@@ -305,7 +371,7 @@ export default function App() {
                   </View>
                 </View>
 
-                </View>
+                </View> */}
             
               </View>
 
