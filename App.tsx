@@ -12,7 +12,8 @@ import {
   KeyboardAvoidingView,
   Dimensions,
   Alert,
-  FlatList
+  FlatList,
+  Platform
 } from "react-native";
 
 import { useState, useEffect } from "react";
@@ -32,39 +33,130 @@ import { API_KEY } from "@env";
 
 import { AxiosError, AxiosResponse } from "axios";
 
+// const weatherIconsCodeJSON: Array<Object> = require("./assets/weather_conditions.json")
 
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
 const vh = height / 100;
 
-var days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab']
+const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab']
+
+const iconsCodeToPath = 
+{day: {1000: require('./assets/weatherIcons/icons/day/clear.png'),
+1003: require('./assets/weatherIcons/icons/day/mcloudy.png'),
+
+
+
+1063: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1066: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1069: require('./assets/weatherIcons/icons/day/Sleet.png'),
+
+
+1114: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1117: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1135: require('./assets/weatherIcons/icons/day/Foggy.png'),
+1147: require('./assets/weatherIcons/icons/day/Foggy.png'),
+1150: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1153: require('./assets/weatherIcons/icons/day/Lrain.png'),
+
+
+1180: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1183: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1186: require('./assets/weatherIcons/icons/day/Rain.png'),
+1189: require('./assets/weatherIcons/icons/day/Rain.png'),
+1192: require('./assets/weatherIcons/icons/day/Rain.png'),
+1195: require('./assets/weatherIcons/icons/day/Rain.png'),
+
+
+1204: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1207: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1210: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1213: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1216: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1219: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1222: require('./assets/weatherIcons/icons/day/Snow.png'),
+1225: require('./assets/weatherIcons/icons/day/Snow.png'),
+
+1240: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1243: require('./assets/weatherIcons/icons/day/Rain.png'),
+1246: require('./assets/weatherIcons/icons/day/Rain.png'),
+1249: require('./assets/weatherIcons/icons/day/Lrain.png'),
+1252: require('./assets/weatherIcons/icons/day/Sleet.png'),
+1255: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1258: require('./assets/weatherIcons/icons/day/Snow.png'),
+1261: require('./assets/weatherIcons/icons/day/Lsnow.png'),
+1264: require('./assets/weatherIcons/icons/day/Snow.png'),
+1273: require('./assets/weatherIcons/icons/day/Tshower.png'),
+1276: require('./assets/weatherIcons/icons/day/TStorm.png'),
+1279: require('./assets/weatherIcons/icons/day/TStorm.png'),
+1282: require('./assets/weatherIcons/icons/day/TStorm.png')},
+
+night: {1000: require('./assets/weatherIcons/icons/night/clear.png'),
+1003: require('./assets/weatherIcons/icons/night/mcloudy.png'),
+
+
+
+1063: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1066: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1069: require('./assets/weatherIcons/icons/night/Sleet.png'),
+
+
+1114: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1117: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1135: require('./assets/weatherIcons/icons/night/Foggy.png'),
+1147: require('./assets/weatherIcons/icons/night/Foggy.png'),
+1150: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1153: require('./assets/weatherIcons/icons/night/Lrain.png'),
+
+
+1180: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1183: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1186: require('./assets/weatherIcons/icons/night/Rain.png'),
+1189: require('./assets/weatherIcons/icons/night/Rain.png'),
+1192: require('./assets/weatherIcons/icons/night/Rain.png'),
+1195: require('./assets/weatherIcons/icons/night/Rain.png'),
+1204: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1207: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1210: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1213: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1216: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1219: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1222: require('./assets/weatherIcons/icons/night/Snow.png'),
+1225: require('./assets/weatherIcons/icons/night/Snow.png'),
+
+1240: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1243: require('./assets/weatherIcons/icons/night/Rain.png'),
+1246: require('./assets/weatherIcons/icons/night/Rain.png'),
+1249: require('./assets/weatherIcons/icons/night/Lrain.png'),
+1252: require('./assets/weatherIcons/icons/night/Sleet.png'),
+1255: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1258: require('./assets/weatherIcons/icons/night/Snow.png'),
+1261: require('./assets/weatherIcons/icons/night/Lsnow.png'),
+1264: require('./assets/weatherIcons/icons/night/Snow.png'),
+1273: require('./assets/weatherIcons/icons/night/Tshower.png'),
+1276: require('./assets/weatherIcons/icons/night/TStorm.png'),
+1279: require('./assets/weatherIcons/icons/night/TStorm.png'),
+1282: require('./assets/weatherIcons/icons/night/TStorm.png')}
+
+}
+
 
 
 export default function App() {
 
-  const [location, setLocation] = useState<Location.LocationObject | null>(
-    null
-  );
+  const [location, setLocation] = useState<string>("");
+  const [locationInput, setLocationInput] = useState<string>("");
   const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
 
   useEffect(() => {
     (async () => {
-
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== 'granted') {
-        // setErrorMsg('Permission to access location was denied');
-        return;
-      }
-
-      let location = await Location.getCurrentPositionAsync();
-      setLocation(location);
 
       // Faz a requisição para a Forecast API da Weather API
       try{
         const response = await Api.get('forecast.json', {
           params: {
             key: API_KEY,
-            q: `${location.coords.latitude},${location.coords.longitude}`, // query de requisição que leva em consideração a latitude e longitude da localização
+            q: location ? location : "auto:ip", // A query inicialmente leva em consideração o IP do dispositivo; será feita outra query com a nova localidade caso o usuário pesquise
             days: 7,
             lang: 'pt'
           }
@@ -72,13 +164,38 @@ export default function App() {
         setWeatherInfo(response);
         console.log(response.data.forecast.forecastday[0].hour[0].time)
         console.log(new Date(response.data.location.localtime).getHours())
+        
       }catch(error: any){
         Alert.alert("OPS! Ocorreu um erro:", error)
         console.log(error)
       }
 
     })();
-  }, []);
+  }, [location]);
+
+  console.log(weatherInfo?.data.current.condition.code)
+
+  // Auto-complete search input
+  useEffect(() => {
+    (async () => {
+      if (locationInput !== "") {
+        try{
+          const response = await Api.get('search.json', {
+            params: {
+              key: API_KEY,
+              q: locationInput, // query de requisição que leva em consideração a latitude e longitude da localização
+              // days: 7,
+              lang: 'pt'
+            }
+          })
+          console.log(response.data)
+        }catch(error: any){
+          Alert.alert("OPS! Ocorreu um erro:", error)
+          console.log(error)
+        }
+      }
+    })()
+  }, [locationInput])
 
   const [fontsLoaded] = useFonts({
     "Cabin-Bold": require("./assets/fonts/Cabin-Bold.ttf"),
@@ -126,8 +243,14 @@ export default function App() {
     );
   }
 
+  // console.log(`./assets/weather/64x64/${weatherInfo?.data.current.is_day === 1 ? "day" : "night"}/${(weatherIconsCodeJSON.filter((item) => item.code === weatherInfo?.data.current.condition.code))[0].icon}.png`)
+
   return (
-    <SafeAreaView style={{ height: "100%", width: "100%" }}>
+    <KeyboardAvoidingView style={{ height: "100%", width: "100%" }}
+    
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -250}
+    >
       <ImageBackground
         style={styles.background}
         source={require("./assets/MainScreenBackground.jpg")}
@@ -153,6 +276,9 @@ export default function App() {
                 style={styles.searchTextInput}
                 placeholder={"Pesquisar localidade"}
                 placeholderTextColor={"rgba(255, 255, 255, 0.7)"}
+                onChangeText={(text) => setLocationInput(text)}
+                onSubmitEditing={() => {setLocation(locationInput)}}
+                autoComplete="postal-address-region"
               />
               <View style={styles.searchLine}></View>
             </View>
@@ -182,29 +308,37 @@ export default function App() {
           </View>
 
           <View style={styles.mainBox}>
-            <View style={{ backgroundColor: "transparent" }}>
+            <View style={{ backgroundColor: "transparent",                   alignItems: "center",
+                  justifyContent: "space-between", }}>
               <View
                 style={{
                   alignItems: "center",
                   justifyContent: "center",
-                  height: 100,
-                  width: 100,
+                  height: 80,
+                  width: 80,
                   // backgroundColor: "transparent",
                 }}
               >
                 <Image
-                  source={require("./assets/SunnyCloud.png")}
-                  style={{ left: 15, bottom: 25 }}
+                  source={weatherInfo?.data.current.is_day == 1 ? iconsCodeToPath.day[weatherInfo?.data.current.condition.code] : iconsCodeToPath.night[weatherInfo?.data.current.condition.code]}
+                  style={{ width: "100%", height: "100%"}}
+                  resizeMode="contain"
                 />
               </View>
               <View
                 style={{
-                  flexDirection: "row",
+                  flexDirection: "column",
                   // width: "100%",
-                  justifyContent: "center",
-                  bottom: 10,
+                  justifyContent: "flex-end",
+                  alignItems: "center"
+                  // bottom: 10,
                 }}
               >
+                {/* <Text
+                  style={[styles.regularFont, {fontSize: 16}]}
+                >
+                  {weatherInfo?.data.current.condition.text}
+                </Text> */}
                 <Text
                   style={[styles.regularFont, {fontSize: 48}]}
                 >
@@ -258,16 +392,20 @@ export default function App() {
                 <FlatList 
                   data={weatherInfo?.data.forecast.forecastday[0].hour} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
                   keyExtractor={item => item.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
-                  style={{width: "95%", alignSelf: "center"}}
+                  style={{width: 80 * vw, alignSelf: "center"}}
+                  contentContainerStyle={{gap: ((80 * vw) - (70 * 3)) / 2}}
                   showsHorizontalScrollIndicator={false}
+                  horizontal={true}
                   renderItem={({item}) => 
                     {
                       let hours = new Date(item.time).getHours()
                       let currentLocalHours = new Date(weatherInfo?.data.location.localtime).getHours()
 
-                      if (hours == 23) {
-                        return;
-                      }
+                      // console.log(item.condition.icon.slice(21))
+                      
+                      // if (hours == 23) {
+                      //   return;
+                      // }
 
                       if (hours > currentLocalHours) {
                         return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
@@ -275,10 +413,10 @@ export default function App() {
                                 <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
                                   <Image source={require("./assets/MoonCloud.png")} style={{}} />
                                 </View>
-                                <View style={{flexDirection: "row", gap: 10}}>
+                                {/* <View style={{flexDirection: "row"}}> */}
                                   <Text style={[styles.regularFont, {fontSize: 14}]}>{item.temp_c}ºC</Text>
                                   {/* <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text> */}
-                                </View>
+                                {/* </View> */}
                               </View>
                         )
                       }
@@ -286,19 +424,7 @@ export default function App() {
   
                     }
                   }
-                  horizontal
                 />
-
-                {/* <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>01:00</Text>
-                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
-                  </View>
-                  <View style={{flexDirection: "row", gap: 10}}>
-                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
-                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
-                  </View>
-                </View> */}
             
               </View>
 
@@ -309,31 +435,32 @@ export default function App() {
                 <FlatList 
                   data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API 
                   keyExtractor={item => item.date} // Identificador se trata da data vide ser unica a cada item
-                  style={{width: "95%", alignSelf: "center"}}
+                  style={{width: 80 * vw, alignSelf: "center"}}
+                  contentContainerStyle={{gap: ((80 * vw) - (70 * 3)) / 2}}
                   showsHorizontalScrollIndicator={false}
+                  horizontal={true}
                   renderItem={({item}) => 
                     {
                       let dayOfWeek = new Date(item.date).getDay()
                       let currentLocalDay = new Date(weatherInfo?.data.location.localtime).getDay()
 
-                      if (dayOfWeek > currentLocalDay) {
+                      // if (dayOfWeek > currentLocalDay) {
                         return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
                                 <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>{days[dayOfWeek]}</Text>
                                 <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
                                   <Image source={require("./assets/MoonCloud.png")} style={{}} />
                                 </View>
-                                <View style={{flexDirection: "row", gap: 10}}>
+                                <View style={{flexDirection: "row", gap: 8}}>
                                   <Text style={[styles.regularFont, {fontSize: 14}]}>{item.day.maxtemp_c}º</Text>
                                   <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>{item.day.mintemp_c}º</Text>
                                 </View>
                               </View>
                         )
-                      }
+                      // }
 
   
                     }
                   }
-                  horizontal
                 />
 
                 {/* <View style={{width: "95%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between"}}>
@@ -377,7 +504,7 @@ export default function App() {
 
         </View>
       </ImageBackground>
-    </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 }
 
