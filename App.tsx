@@ -20,15 +20,15 @@ import { useState, useEffect } from "react";
 
 import { useFonts } from "expo-font";
 
-import * as Location from "expo-location";
-
 import { StatusBar as StatusBarExpo } from "expo-status-bar";
 
 import Api from "./src/services/api";
 
 import { API_KEY } from "@env";
 
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
+
+import iconsCodeToPath from "./src/utilities/iconsCodeToPath";
 
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
@@ -36,109 +36,6 @@ const vh = height / 100;
 
 const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
-const iconsCodeToPath = {
-  day: {
-    1000: require("./assets/weatherIcons/finalIcons/day/113.png"),
-    1003: require("./assets/weatherIcons/finalIcons/day/116.png"),
-    1006: require("./assets/weatherIcons/finalIcons/day/119.png"),
-    1009: require("./assets/weatherIcons/finalIcons/day/122.png"),
-    1030: require("./assets/weatherIcons/finalIcons/day/143.png"),
-    1063: require("./assets/weatherIcons/finalIcons/day/176.png"),
-    1066: require("./assets/weatherIcons/finalIcons/day/179.png"),
-    1069: require("./assets/weatherIcons/finalIcons/day/182.png"),
-    1072: require("./assets/weatherIcons/finalIcons/day/185.png"),
-    1087: require("./assets/weatherIcons/finalIcons/day/200.png"),
-    1114: require("./assets/weatherIcons/finalIcons/day/227.png"),
-    1117: require("./assets/weatherIcons/finalIcons/day/230.png"),
-    1135: require("./assets/weatherIcons/finalIcons/day/248.png"),
-    1147: require("./assets/weatherIcons/finalIcons/day/260.png"),
-    1150: require("./assets/weatherIcons/finalIcons/day/263.png"),
-    1153: require("./assets/weatherIcons/finalIcons/day/266.png"),
-    1168: require("./assets/weatherIcons/finalIcons/day/281.png"),
-    1171: require("./assets/weatherIcons/finalIcons/day/284.png"),
-    1180: require("./assets/weatherIcons/finalIcons/day/293.png"),
-    1183: require("./assets/weatherIcons/finalIcons/day/296.png"),
-    1186: require("./assets/weatherIcons/finalIcons/day/299.png"),
-    1189: require("./assets/weatherIcons/finalIcons/day/302.png"),
-    1192: require("./assets/weatherIcons/finalIcons/day/305.png"),
-    1195: require("./assets/weatherIcons/finalIcons/day/308.png"),
-    1198: require("./assets/weatherIcons/finalIcons/day/311.png"),
-    1201: require("./assets/weatherIcons/finalIcons/day/314.png"),
-    1204: require("./assets/weatherIcons/finalIcons/day/317.png"),
-    1207: require("./assets/weatherIcons/finalIcons/day/320.png"),
-    1210: require("./assets/weatherIcons/finalIcons/day/323.png"),
-    1213: require("./assets/weatherIcons/finalIcons/day/326.png"),
-    1216: require("./assets/weatherIcons/finalIcons/day/329.png"),
-    1219: require("./assets/weatherIcons/finalIcons/day/332.png"),
-    1222: require("./assets/weatherIcons/finalIcons/day/335.png"),
-    1225: require("./assets/weatherIcons/finalIcons/day/338.png"),
-    1237: require("./assets/weatherIcons/finalIcons/day/350.png"),
-    1240: require("./assets/weatherIcons/finalIcons/day/353.png"),
-    1243: require("./assets/weatherIcons/finalIcons/day/356.png"),
-    1246: require("./assets/weatherIcons/finalIcons/day/359.png"),
-    1249: require("./assets/weatherIcons/finalIcons/day/362.png"),
-    1252: require("./assets/weatherIcons/finalIcons/day/365.png"),
-    1255: require("./assets/weatherIcons/finalIcons/day/368.png"),
-    1258: require("./assets/weatherIcons/finalIcons/day/371.png"),
-    1261: require("./assets/weatherIcons/finalIcons/day/374.png"),
-    1264: require("./assets/weatherIcons/finalIcons/day/377.png"),
-    1273: require("./assets/weatherIcons/finalIcons/day/386.png"),
-    1276: require("./assets/weatherIcons/finalIcons/day/389.png"),
-    1279: require("./assets/weatherIcons/finalIcons/day/392.png"),
-    1282: require("./assets/weatherIcons/finalIcons/day/395.png"),
-  },
-
-  night: {
-    1000: require("./assets/weatherIcons/finalIcons/night/113.png"),
-    1003: require("./assets/weatherIcons/finalIcons/night/116.png"),
-    1006: require("./assets/weatherIcons/finalIcons/night/119.png"),
-    1009: require("./assets/weatherIcons/finalIcons/night/122.png"),
-    1030: require("./assets/weatherIcons/finalIcons/night/143.png"),
-    1063: require("./assets/weatherIcons/finalIcons/night/176.png"),
-    1066: require("./assets/weatherIcons/finalIcons/night/179.png"),
-    1069: require("./assets/weatherIcons/finalIcons/night/182.png"),
-    1072: require("./assets/weatherIcons/finalIcons/night/185.png"),
-    1087: require("./assets/weatherIcons/finalIcons/night/200.png"),
-    1114: require("./assets/weatherIcons/finalIcons/night/227.png"),
-    1117: require("./assets/weatherIcons/finalIcons/night/230.png"),
-    1135: require("./assets/weatherIcons/finalIcons/night/248.png"),
-    1147: require("./assets/weatherIcons/finalIcons/night/260.png"),
-    1150: require("./assets/weatherIcons/finalIcons/night/263.png"),
-    1153: require("./assets/weatherIcons/finalIcons/night/266.png"),
-    1168: require("./assets/weatherIcons/finalIcons/night/281.png"),
-    1171: require("./assets/weatherIcons/finalIcons/night/284.png"),
-    1180: require("./assets/weatherIcons/finalIcons/night/293.png"),
-    1183: require("./assets/weatherIcons/finalIcons/night/296.png"),
-    1186: require("./assets/weatherIcons/finalIcons/night/299.png"),
-    1189: require("./assets/weatherIcons/finalIcons/night/302.png"),
-    1192: require("./assets/weatherIcons/finalIcons/night/305.png"),
-    1195: require("./assets/weatherIcons/finalIcons/night/308.png"),
-    1198: require("./assets/weatherIcons/finalIcons/night/311.png"),
-    1201: require("./assets/weatherIcons/finalIcons/night/314.png"),
-    1204: require("./assets/weatherIcons/finalIcons/night/317.png"),
-    1207: require("./assets/weatherIcons/finalIcons/night/320.png"),
-    1210: require("./assets/weatherIcons/finalIcons/night/323.png"),
-    1213: require("./assets/weatherIcons/finalIcons/night/326.png"),
-    1216: require("./assets/weatherIcons/finalIcons/night/329.png"),
-    1219: require("./assets/weatherIcons/finalIcons/night/332.png"),
-    1222: require("./assets/weatherIcons/finalIcons/night/335.png"),
-    1225: require("./assets/weatherIcons/finalIcons/night/338.png"),
-    1237: require("./assets/weatherIcons/finalIcons/night/350.png"),
-    1240: require("./assets/weatherIcons/finalIcons/night/353.png"),
-    1243: require("./assets/weatherIcons/finalIcons/night/356.png"),
-    1246: require("./assets/weatherIcons/finalIcons/night/359.png"),
-    1249: require("./assets/weatherIcons/finalIcons/night/362.png"),
-    1252: require("./assets/weatherIcons/finalIcons/night/365.png"),
-    1255: require("./assets/weatherIcons/finalIcons/night/368.png"),
-    1258: require("./assets/weatherIcons/finalIcons/night/371.png"),
-    1261: require("./assets/weatherIcons/finalIcons/night/374.png"),
-    1264: require("./assets/weatherIcons/finalIcons/night/377.png"),
-    1273: require("./assets/weatherIcons/finalIcons/night/386.png"),
-    1276: require("./assets/weatherIcons/finalIcons/night/389.png"),
-    1279: require("./assets/weatherIcons/finalIcons/night/392.png"),
-    1282: require("./assets/weatherIcons/finalIcons/night/395.png"),
-  },
-};
 
 export default function App() {
   const [location, setLocation] = useState<string>("");
@@ -190,7 +87,7 @@ export default function App() {
           const response = await Api.get("search.json", {
             params: {
               key: API_KEY,
-              q: locationInput, // query de requisição que leva em consideração a latitude e longitude da localização
+              q: locationInput, // Query de requisição que leva em consideração a localidade pesquisada pelo usuário
               lang: "pt",
             },
           });
