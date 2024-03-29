@@ -13,11 +13,10 @@ import {
   Dimensions,
   Alert,
   FlatList,
-  Platform
+  Platform,
 } from "react-native";
 
 import { useState, useEffect } from "react";
-
 
 import { useFonts } from "expo-font";
 
@@ -25,177 +24,184 @@ import * as Location from "expo-location";
 
 import { StatusBar as StatusBarExpo } from "expo-status-bar";
 
-
 import Api from "./src/services/api";
 
 import { API_KEY } from "@env";
 
-
 import { AxiosError, AxiosResponse } from "axios";
-
-// const weatherIconsCodeJSON: Array<Object> = require("./assets/weather_conditions.json")
 
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
 const vh = height / 100;
 
-const days = ['Dom','Seg','Ter','Qua','Qui','Sex','Sab']
+const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
-const iconsCodeToPath = 
-{day: {1000: require('./assets/weatherIcons/icons/day/clear.png'),
-1003: require('./assets/weatherIcons/icons/day/mcloudy.png'),
+const iconsCodeToPath = {
+  day: {
+    1000: require("./assets/weatherIcons/finalIcons/day/113.png"),
+    1003: require("./assets/weatherIcons/finalIcons/day/116.png"),
+    1006: require("./assets/weatherIcons/finalIcons/day/119.png"),
+    1009: require("./assets/weatherIcons/finalIcons/day/122.png"),
+    1030: require("./assets/weatherIcons/finalIcons/day/143.png"),
+    1063: require("./assets/weatherIcons/finalIcons/day/176.png"),
+    1066: require("./assets/weatherIcons/finalIcons/day/179.png"),
+    1069: require("./assets/weatherIcons/finalIcons/day/182.png"),
+    1072: require("./assets/weatherIcons/finalIcons/day/185.png"),
+    1087: require("./assets/weatherIcons/finalIcons/day/200.png"),
+    1114: require("./assets/weatherIcons/finalIcons/day/227.png"),
+    1117: require("./assets/weatherIcons/finalIcons/day/230.png"),
+    1135: require("./assets/weatherIcons/finalIcons/day/248.png"),
+    1147: require("./assets/weatherIcons/finalIcons/day/260.png"),
+    1150: require("./assets/weatherIcons/finalIcons/day/263.png"),
+    1153: require("./assets/weatherIcons/finalIcons/day/266.png"),
+    1168: require("./assets/weatherIcons/finalIcons/day/281.png"),
+    1171: require("./assets/weatherIcons/finalIcons/day/284.png"),
+    1180: require("./assets/weatherIcons/finalIcons/day/293.png"),
+    1183: require("./assets/weatherIcons/finalIcons/day/296.png"),
+    1186: require("./assets/weatherIcons/finalIcons/day/299.png"),
+    1189: require("./assets/weatherIcons/finalIcons/day/302.png"),
+    1192: require("./assets/weatherIcons/finalIcons/day/305.png"),
+    1195: require("./assets/weatherIcons/finalIcons/day/308.png"),
+    1198: require("./assets/weatherIcons/finalIcons/day/311.png"),
+    1201: require("./assets/weatherIcons/finalIcons/day/314.png"),
+    1204: require("./assets/weatherIcons/finalIcons/day/317.png"),
+    1207: require("./assets/weatherIcons/finalIcons/day/320.png"),
+    1210: require("./assets/weatherIcons/finalIcons/day/323.png"),
+    1213: require("./assets/weatherIcons/finalIcons/day/326.png"),
+    1216: require("./assets/weatherIcons/finalIcons/day/329.png"),
+    1219: require("./assets/weatherIcons/finalIcons/day/332.png"),
+    1222: require("./assets/weatherIcons/finalIcons/day/335.png"),
+    1225: require("./assets/weatherIcons/finalIcons/day/338.png"),
+    1237: require("./assets/weatherIcons/finalIcons/day/350.png"),
+    1240: require("./assets/weatherIcons/finalIcons/day/353.png"),
+    1243: require("./assets/weatherIcons/finalIcons/day/356.png"),
+    1246: require("./assets/weatherIcons/finalIcons/day/359.png"),
+    1249: require("./assets/weatherIcons/finalIcons/day/362.png"),
+    1252: require("./assets/weatherIcons/finalIcons/day/365.png"),
+    1255: require("./assets/weatherIcons/finalIcons/day/368.png"),
+    1258: require("./assets/weatherIcons/finalIcons/day/371.png"),
+    1261: require("./assets/weatherIcons/finalIcons/day/374.png"),
+    1264: require("./assets/weatherIcons/finalIcons/day/377.png"),
+    1273: require("./assets/weatherIcons/finalIcons/day/386.png"),
+    1276: require("./assets/weatherIcons/finalIcons/day/389.png"),
+    1279: require("./assets/weatherIcons/finalIcons/day/392.png"),
+    1282: require("./assets/weatherIcons/finalIcons/day/395.png"),
+  },
 
-
-
-1063: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1066: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1069: require('./assets/weatherIcons/icons/day/Sleet.png'),
-
-
-1114: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1117: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1135: require('./assets/weatherIcons/icons/day/Foggy.png'),
-1147: require('./assets/weatherIcons/icons/day/Foggy.png'),
-1150: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1153: require('./assets/weatherIcons/icons/day/Lrain.png'),
-
-
-1180: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1183: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1186: require('./assets/weatherIcons/icons/day/Rain.png'),
-1189: require('./assets/weatherIcons/icons/day/Rain.png'),
-1192: require('./assets/weatherIcons/icons/day/Rain.png'),
-1195: require('./assets/weatherIcons/icons/day/Rain.png'),
-
-
-1204: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1207: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1210: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1213: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1216: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1219: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1222: require('./assets/weatherIcons/icons/day/Snow.png'),
-1225: require('./assets/weatherIcons/icons/day/Snow.png'),
-
-1240: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1243: require('./assets/weatherIcons/icons/day/Rain.png'),
-1246: require('./assets/weatherIcons/icons/day/Rain.png'),
-1249: require('./assets/weatherIcons/icons/day/Lrain.png'),
-1252: require('./assets/weatherIcons/icons/day/Sleet.png'),
-1255: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1258: require('./assets/weatherIcons/icons/day/Snow.png'),
-1261: require('./assets/weatherIcons/icons/day/Lsnow.png'),
-1264: require('./assets/weatherIcons/icons/day/Snow.png'),
-1273: require('./assets/weatherIcons/icons/day/Tshower.png'),
-1276: require('./assets/weatherIcons/icons/day/TStorm.png'),
-1279: require('./assets/weatherIcons/icons/day/TStorm.png'),
-1282: require('./assets/weatherIcons/icons/day/TStorm.png')},
-
-night: {1000: require('./assets/weatherIcons/icons/night/clear.png'),
-1003: require('./assets/weatherIcons/icons/night/mcloudy.png'),
-
-
-
-1063: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1066: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1069: require('./assets/weatherIcons/icons/night/Sleet.png'),
-
-
-1114: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1117: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1135: require('./assets/weatherIcons/icons/night/Foggy.png'),
-1147: require('./assets/weatherIcons/icons/night/Foggy.png'),
-1150: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1153: require('./assets/weatherIcons/icons/night/Lrain.png'),
-
-
-1180: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1183: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1186: require('./assets/weatherIcons/icons/night/Rain.png'),
-1189: require('./assets/weatherIcons/icons/night/Rain.png'),
-1192: require('./assets/weatherIcons/icons/night/Rain.png'),
-1195: require('./assets/weatherIcons/icons/night/Rain.png'),
-1204: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1207: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1210: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1213: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1216: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1219: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1222: require('./assets/weatherIcons/icons/night/Snow.png'),
-1225: require('./assets/weatherIcons/icons/night/Snow.png'),
-
-1240: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1243: require('./assets/weatherIcons/icons/night/Rain.png'),
-1246: require('./assets/weatherIcons/icons/night/Rain.png'),
-1249: require('./assets/weatherIcons/icons/night/Lrain.png'),
-1252: require('./assets/weatherIcons/icons/night/Sleet.png'),
-1255: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1258: require('./assets/weatherIcons/icons/night/Snow.png'),
-1261: require('./assets/weatherIcons/icons/night/Lsnow.png'),
-1264: require('./assets/weatherIcons/icons/night/Snow.png'),
-1273: require('./assets/weatherIcons/icons/night/Tshower.png'),
-1276: require('./assets/weatherIcons/icons/night/TStorm.png'),
-1279: require('./assets/weatherIcons/icons/night/TStorm.png'),
-1282: require('./assets/weatherIcons/icons/night/TStorm.png')}
-
-}
-
-
+  night: {
+    1000: require("./assets/weatherIcons/finalIcons/night/113.png"),
+    1003: require("./assets/weatherIcons/finalIcons/night/116.png"),
+    1006: require("./assets/weatherIcons/finalIcons/night/119.png"),
+    1009: require("./assets/weatherIcons/finalIcons/night/122.png"),
+    1030: require("./assets/weatherIcons/finalIcons/night/143.png"),
+    1063: require("./assets/weatherIcons/finalIcons/night/176.png"),
+    1066: require("./assets/weatherIcons/finalIcons/night/179.png"),
+    1069: require("./assets/weatherIcons/finalIcons/night/182.png"),
+    1072: require("./assets/weatherIcons/finalIcons/night/185.png"),
+    1087: require("./assets/weatherIcons/finalIcons/night/200.png"),
+    1114: require("./assets/weatherIcons/finalIcons/night/227.png"),
+    1117: require("./assets/weatherIcons/finalIcons/night/230.png"),
+    1135: require("./assets/weatherIcons/finalIcons/night/248.png"),
+    1147: require("./assets/weatherIcons/finalIcons/night/260.png"),
+    1150: require("./assets/weatherIcons/finalIcons/night/263.png"),
+    1153: require("./assets/weatherIcons/finalIcons/night/266.png"),
+    1168: require("./assets/weatherIcons/finalIcons/night/281.png"),
+    1171: require("./assets/weatherIcons/finalIcons/night/284.png"),
+    1180: require("./assets/weatherIcons/finalIcons/night/293.png"),
+    1183: require("./assets/weatherIcons/finalIcons/night/296.png"),
+    1186: require("./assets/weatherIcons/finalIcons/night/299.png"),
+    1189: require("./assets/weatherIcons/finalIcons/night/302.png"),
+    1192: require("./assets/weatherIcons/finalIcons/night/305.png"),
+    1195: require("./assets/weatherIcons/finalIcons/night/308.png"),
+    1198: require("./assets/weatherIcons/finalIcons/night/311.png"),
+    1201: require("./assets/weatherIcons/finalIcons/night/314.png"),
+    1204: require("./assets/weatherIcons/finalIcons/night/317.png"),
+    1207: require("./assets/weatherIcons/finalIcons/night/320.png"),
+    1210: require("./assets/weatherIcons/finalIcons/night/323.png"),
+    1213: require("./assets/weatherIcons/finalIcons/night/326.png"),
+    1216: require("./assets/weatherIcons/finalIcons/night/329.png"),
+    1219: require("./assets/weatherIcons/finalIcons/night/332.png"),
+    1222: require("./assets/weatherIcons/finalIcons/night/335.png"),
+    1225: require("./assets/weatherIcons/finalIcons/night/338.png"),
+    1237: require("./assets/weatherIcons/finalIcons/night/350.png"),
+    1240: require("./assets/weatherIcons/finalIcons/night/353.png"),
+    1243: require("./assets/weatherIcons/finalIcons/night/356.png"),
+    1246: require("./assets/weatherIcons/finalIcons/night/359.png"),
+    1249: require("./assets/weatherIcons/finalIcons/night/362.png"),
+    1252: require("./assets/weatherIcons/finalIcons/night/365.png"),
+    1255: require("./assets/weatherIcons/finalIcons/night/368.png"),
+    1258: require("./assets/weatherIcons/finalIcons/night/371.png"),
+    1261: require("./assets/weatherIcons/finalIcons/night/374.png"),
+    1264: require("./assets/weatherIcons/finalIcons/night/377.png"),
+    1273: require("./assets/weatherIcons/finalIcons/night/386.png"),
+    1276: require("./assets/weatherIcons/finalIcons/night/389.png"),
+    1279: require("./assets/weatherIcons/finalIcons/night/392.png"),
+    1282: require("./assets/weatherIcons/finalIcons/night/395.png"),
+  },
+};
 
 export default function App() {
-
   const [location, setLocation] = useState<string>("");
   const [locationInput, setLocationInput] = useState<string>("");
   const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
+  const [filteredTodayData, setFilteredTodayData] = useState<any>(null);
 
   useEffect(() => {
     (async () => {
-
       // Faz a requisição para a Forecast API da Weather API
-      try{
-        const response = await Api.get('forecast.json', {
+      try {
+        const response = await Api.get("forecast.json", {
           params: {
             key: API_KEY,
             q: location ? location : "auto:ip", // A query inicialmente leva em consideração o IP do dispositivo; será feita outra query com a nova localidade caso o usuário pesquise
-            days: 7,
-            lang: 'pt'
-          }
-        })
-        setWeatherInfo(response);
-        console.log(response.data.forecast.forecastday[0].hour[0].time)
-        console.log(new Date(response.data.location.localtime).getHours())
-        
-      }catch(error: any){
-        Alert.alert("OPS! Ocorreu um erro:", error)
-        console.log(error)
-      }
+            days: 3, // Configuração para as informações climáticas da semana, está fixada em 3 pois o plano gratuito da API fornece dados de apenas 3 dias após hoje
+            lang: "pt",
+          },
+        });
 
+        setWeatherInfo(response);
+
+        // Filtra os dados para a FlatList de informações do dia de hoje, exibindo apenas os dados após o horário atual
+
+        let currentLocalHours = new Date(
+          response.data.location.localtime
+        ).getHours();
+
+        let filteredTodayData =
+          response.data.forecast.forecastday[0].hour.filter((item: any) => {
+            let hours = new Date(item.time).getHours();
+
+            if (hours > currentLocalHours) return item;
+          });
+        setFilteredTodayData(filteredTodayData);
+        console.log(filteredTodayData);
+      } catch (error: any) {
+        Alert.alert("OPS! Ocorreu um erro:", error);
+        console.log(error);
+      }
     })();
   }, [location]);
-
-  console.log(weatherInfo?.data.current.condition.code)
 
   // Auto-complete search input
   useEffect(() => {
     (async () => {
       if (locationInput !== "") {
-        try{
-          const response = await Api.get('search.json', {
+        try {
+          const response = await Api.get("search.json", {
             params: {
               key: API_KEY,
               q: locationInput, // query de requisição que leva em consideração a latitude e longitude da localização
-              // days: 7,
-              lang: 'pt'
-            }
-          })
-          console.log(response.data)
-        }catch(error: any){
-          Alert.alert("OPS! Ocorreu um erro:", error)
-          console.log(error)
+              lang: "pt",
+            },
+          });
+          console.log(response.data);
+        } catch (error: any) {
+          Alert.alert("OPS! Ocorreu um erro:", error);
+          console.log(error);
         }
       }
-    })()
-  }, [locationInput])
+    })();
+  }, [locationInput]);
 
   const [fontsLoaded] = useFonts({
     "Cabin-Bold": require("./assets/fonts/Cabin-Bold.ttf"),
@@ -224,17 +230,18 @@ export default function App() {
           style={styles.mainWeatherInfoIcon}
           resizeMode="contain"
         />
-        <Text
-          style={[styles.regularFont, { fontSize: 16 }]}
-        >
+        <Text style={[styles.regularFont, { fontSize: 16 }]}>
           {props.value}
         </Text>
         <Text
-          style={[styles.regularFont, {
-            fontSize: 10,
-            height: 19,
-            textAlignVertical: "bottom",
-          }]}
+          style={[
+            styles.regularFont,
+            {
+              fontSize: 10,
+              height: 19,
+              textAlignVertical: "bottom",
+            },
+          ]}
         >
           {" "}
           {props.measure}
@@ -243,13 +250,11 @@ export default function App() {
     );
   }
 
-  // console.log(`./assets/weather/64x64/${weatherInfo?.data.current.is_day === 1 ? "day" : "night"}/${(weatherIconsCodeJSON.filter((item) => item.code === weatherInfo?.data.current.condition.code))[0].icon}.png`)
-
   return (
-    <KeyboardAvoidingView style={{ height: "100%", width: "100%" }}
-    
-    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : -250}
+    <KeyboardAvoidingView
+      style={{ height: "100%", width: "100%" }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -250}
     >
       <ImageBackground
         style={styles.background}
@@ -277,7 +282,9 @@ export default function App() {
                 placeholder={"Pesquisar localidade"}
                 placeholderTextColor={"rgba(255, 255, 255, 0.7)"}
                 onChangeText={(text) => setLocationInput(text)}
-                onSubmitEditing={() => {setLocation(locationInput)}}
+                onSubmitEditing={() => {
+                  setLocation(locationInput);
+                }}
                 autoComplete="postal-address-region"
               />
               <View style={styles.searchLine}></View>
@@ -308,52 +315,49 @@ export default function App() {
           </View>
 
           <View style={styles.mainBox}>
-            <View style={{ backgroundColor: "transparent",                   alignItems: "center",
-                  justifyContent: "space-between", }}>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "space-between",
+              }}
+            >
               <View
                 style={{
                   alignItems: "center",
                   justifyContent: "center",
-                  height: 80,
-                  width: 80,
-                  // backgroundColor: "transparent",
+                  height: 100,
+                  width: 100,
                 }}
               >
                 <Image
-                  source={weatherInfo?.data.current.is_day == 1 ? iconsCodeToPath.day[weatherInfo?.data.current.condition.code] : iconsCodeToPath.night[weatherInfo?.data.current.condition.code]}
-                  style={{ width: "100%", height: "100%"}}
-                  resizeMode="contain"
+                  source={
+                    weatherInfo?.data.current.is_day == 1
+                      ? iconsCodeToPath.day[
+                          weatherInfo?.data.current.condition.code
+                        ]
+                      : iconsCodeToPath.night[
+                          weatherInfo?.data.current.condition.code
+                        ]
+                  }
+                  style={{ width: "100%", height: "100%" }}
+                  resizeMode="center"
                 />
               </View>
               <View
                 style={{
                   flexDirection: "column",
-                  // width: "100%",
                   justifyContent: "flex-end",
-                  alignItems: "center"
-                  // bottom: 10,
+                  alignItems: "center",
                 }}
               >
-                {/* <Text
-                  style={[styles.regularFont, {fontSize: 16}]}
-                >
-                  {weatherInfo?.data.current.condition.text}
-                </Text> */}
-                <Text
-                  style={[styles.regularFont, {fontSize: 48}]}
-                >
-                  {weatherInfo?.data.current.temp_c}{"ºC"}
+                <Text style={[styles.regularFont, { fontSize: 48 }]}>
+                  {weatherInfo?.data.current.temp_c}
+                  {"ºC"}
                 </Text>
-                {/* <Text
-                  style={[styles.regularFont, {fontSize: 48}]}
-                >
-                  ºC
-                </Text> */}
               </View>
             </View>
             <View
               style={{
-                // backgroundColor: "transparent",
                 justifyContent: "space-between",
               }}
             >
@@ -382,126 +386,168 @@ export default function App() {
         </View>
 
         <View
-          style={{ height: 55 * vh, width: "100%", backgroundColor: "transparent", alignItems: "center" }}
+          style={{
+            height: 55 * vh,
+            width: "100%",
+            backgroundColor: "transparent",
+            alignItems: "center",
+          }}
         >
+          <View style={{ width: "85%", marginBottom: 16 }}>
+            <Text
+              style={[
+                styles.regularFont,
+                {
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: 15,
+                  marginLeft: 8,
+                  marginBottom: 4,
+                },
+              ]}
+            >
+              Hoje
+            </Text>
+            <View
+              style={{
+                height: 1,
+                backgroundColor: "rgba(255,255,255,0.4)",
+                marginBottom: 16,
+              }}
+            />
 
-              <View style={{width: "85%", marginBottom: 16}}>
-                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Hoje</Text>
-                <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
+            <FlatList
+              data={filteredTodayData} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
+              keyExtractor={(item) => item?.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
+              style={{ width: 80 * vw, alignSelf: "center" }}
+              contentContainerStyle={{ gap: (80 * vw - 70 * 3) / 2 }}
+              showsHorizontalScrollIndicator={false}
+              horizontal={true}
+              renderItem={({ item }) => {
+                let hours = new Date(item.time).getHours();
 
-                <FlatList 
-                  data={weatherInfo?.data.forecast.forecastday[0].hour} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
-                  keyExtractor={item => item.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
-                  style={{width: 80 * vw, alignSelf: "center"}}
-                  contentContainerStyle={{gap: ((80 * vw) - (70 * 3)) / 2}}
-                  showsHorizontalScrollIndicator={false}
-                  horizontal={true}
-                  renderItem={({item}) => 
-                    {
-                      let hours = new Date(item.time).getHours()
-                      let currentLocalHours = new Date(weatherInfo?.data.location.localtime).getHours()
-
-                      // console.log(item.condition.icon.slice(21))
-                      
-                      // if (hours == 23) {
-                      //   return;
-                      // }
-
-                      if (hours > currentLocalHours) {
-                        return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>{hours < 10 ? `0${hours}:00` : `${hours}:00`}</Text>
-                                <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                                  <Image source={require("./assets/MoonCloud.png")} style={{}} />
-                                </View>
-                                {/* <View style={{flexDirection: "row"}}> */}
-                                  <Text style={[styles.regularFont, {fontSize: 14}]}>{item.temp_c}ºC</Text>
-                                  {/* <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text> */}
-                                {/* </View> */}
-                              </View>
-                        )
-                      }
-
-  
-                    }
-                  }
-                />
-            
-              </View>
-
-              <View style={{width: "85%", marginBottom: 16}}>
-                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15, marginLeft: 8, marginBottom: 4}]}>Semana</Text>
-                <View style={{height: 1, backgroundColor: "rgba(255,255,255,0.4)", marginBottom: 16}}/>
-
-                <FlatList 
-                  data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API 
-                  keyExtractor={item => item.date} // Identificador se trata da data vide ser unica a cada item
-                  style={{width: 80 * vw, alignSelf: "center"}}
-                  contentContainerStyle={{gap: ((80 * vw) - (70 * 3)) / 2}}
-                  showsHorizontalScrollIndicator={false}
-                  horizontal={true}
-                  renderItem={({item}) => 
-                    {
-                      let dayOfWeek = new Date(item.date).getDay()
-                      let currentLocalDay = new Date(weatherInfo?.data.location.localtime).getDay()
-
-                      // if (dayOfWeek > currentLocalDay) {
-                        return(<View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                                <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>{days[dayOfWeek]}</Text>
-                                <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                                  <Image source={require("./assets/MoonCloud.png")} style={{}} />
-                                </View>
-                                <View style={{flexDirection: "row", gap: 8}}>
-                                  <Text style={[styles.regularFont, {fontSize: 14}]}>{item.day.maxtemp_c}º</Text>
-                                  <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>{item.day.mintemp_c}º</Text>
-                                </View>
-                              </View>
-                        )
-                      // }
-
-  
-                    }
-                  }
-                />
-
-                {/* <View style={{width: "95%", alignSelf: "center", flexDirection: "row", justifyContent: "space-between"}}>
-
-                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
-                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
+                return (
+                  <View
+                    style={{
+                      backgroundColor: "transparent",
+                      width: 70,
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.regularFont,
+                        { color: "rgba(255,255,255,0.9)", fontSize: 15 },
+                      ]}
+                    >
+                      {hours < 10 ? `0${hours}:00` : `${hours}:00`}
+                    </Text>
+                    <View
+                      style={{
+                        height: 36,
+                        width: 36,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image
+                        source={
+                          item.is_day == 1
+                            ? iconsCodeToPath.day[item.condition.code]
+                            : iconsCodeToPath.night[item.condition.code]
+                        }
+                        style={{ height: 36, width: 36, resizeMode: "contain" }}
+                      />
+                    </View>
+                    <Text style={[styles.regularFont, { fontSize: 14 }]}>
+                      {item?.temp_c}ºC
+                    </Text>
                   </View>
-                  <View style={{flexDirection: "row", gap: 10}}>
-                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
-                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
-                  </View>
-                </View>
+                );
+              }}
+            />
+          </View>
 
-                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
-                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
-                  </View>
-                  <View style={{flexDirection: "row", gap: 10}}>
-                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
-                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
-                  </View>
-                </View>
+          <View style={{ width: "85%", marginBottom: 16 }}>
+            <Text
+              style={[
+                styles.regularFont,
+                {
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: 15,
+                  marginLeft: 8,
+                  marginBottom: 4,
+                },
+              ]}
+            >
+              Semana
+            </Text>
+            <View
+              style={{
+                height: 1,
+                backgroundColor: "rgba(255,255,255,0.4)",
+                marginBottom: 16,
+              }}
+            />
 
-                <View style={{backgroundColor: "transparent", width: 70, alignItems: "center", gap: 10}}>
-                  <Text style={[styles.regularFont, {color: "rgba(255,255,255,0.9)", fontSize: 15}]}>Seg</Text>
-                  <View style={{height: 36, width: 36, justifyContent: "center", alignItems: "center"}}>
-                    <Image source={require("./assets/MoonCloud.png")} style={{}} />
-                  </View>
-                  <View style={{flexDirection: "row", gap: 10}}>
-                    <Text style={[styles.regularFont, {fontSize: 14}]}>24º</Text>
-                    <Text style={[styles.regularFont, {fontSize: 14, color: "rgba(255,255,255,0.7)"}]}>29º</Text>
-                  </View>
-                </View>
+            <FlatList
+              data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API
+              keyExtractor={(item) => item.date} // Identificador se trata da data vide ser unica a cada item
+              style={{ width: 80 * vw, alignSelf: "center" }}
+              contentContainerStyle={{ gap: (80 * vw - 70 * 3) / 2 }}
+              showsHorizontalScrollIndicator={false}
+              horizontal={true}
+              renderItem={({ item }) => {
+                let dayOfWeek = new Date(item.date).getDay();
 
-                </View> */}
-            
-              </View>
-
+                return (
+                  <View
+                    style={{
+                      backgroundColor: "transparent",
+                      width: 70,
+                      alignItems: "center",
+                      gap: 10,
+                    }}
+                  >
+                    <Text
+                      style={[
+                        styles.regularFont,
+                        { color: "rgba(255,255,255,0.9)", fontSize: 15 },
+                      ]}
+                    >
+                      {days[dayOfWeek]}
+                    </Text>
+                    <View
+                      style={{
+                        height: 36,
+                        width: 36,
+                        justifyContent: "center",
+                        alignItems: "center",
+                      }}
+                    >
+                      <Image
+                        source={iconsCodeToPath.day[item.day.condition.code]}
+                        style={{ height: 36, width: 36, resizeMode: "contain" }}
+                      />
+                    </View>
+                    <View style={{ flexDirection: "row", gap: 8 }}>
+                      <Text style={[styles.regularFont, { fontSize: 14 }]}>
+                        {item.day.maxtemp_c}º
+                      </Text>
+                      <Text
+                        style={[
+                          styles.regularFont,
+                          { fontSize: 14, color: "rgba(255,255,255,0.7)" },
+                        ]}
+                      >
+                        {item.day.mintemp_c}º
+                      </Text>
+                    </View>
+                  </View>
+                );
+              }}
+            />
+          </View>
         </View>
       </ImageBackground>
     </KeyboardAvoidingView>
@@ -513,7 +559,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     width: "100%",
-    height: "100%"
+    height: "100%",
   },
   searchContainer: {
     flexDirection: "row",
@@ -546,8 +592,8 @@ const styles = StyleSheet.create({
     fontFamily: "Cabin-Bold",
     color: "white",
   },
-  mainWeatherInfoIcon: { 
-    width: 30, 
-    marginRight: 8 
-  }
+  mainWeatherInfoIcon: {
+    width: 30,
+    marginRight: 8,
+  },
 });
