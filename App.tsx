@@ -34,9 +34,6 @@ import PeriodicItemCard from "./src/components/PeriodicInfoCard";
 
 import { MainWeatherInfoProps } from "./src/components/MainWeatherInfoItem";
 
-import { WeatherWidgetPreviewScreen } from "./src/widget/WidgetPreview";
-
-
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
 const vh = height / 100;
