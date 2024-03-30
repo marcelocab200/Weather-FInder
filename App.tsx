@@ -4,10 +4,8 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
-  TextInput,
   View,
   ActivityIndicator,
-  ImageSourcePropType,
   StatusBar,
   KeyboardAvoidingView,
   Dimensions,
@@ -30,18 +28,46 @@ import { AxiosResponse } from "axios";
 
 import iconsCodeToPath from "./src/utilities/iconsCodeToPath";
 
+import MainWeatherInfoItem from "./src/components/MainWeatherInfoItem";
+import SearchLocation from "./src/components/SearchLocation";
+import PeriodicItemCard from "./src/components/PeriodicInfoCard";
+
+import { MainWeatherInfoProps } from "./src/components/MainWeatherInfoItem";
+
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
 const vh = height / 100;
 
 const days = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
-
 export default function App() {
   const [location, setLocation] = useState<string>("");
   const [locationInput, setLocationInput] = useState<string>("");
   const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
   const [filteredTodayData, setFilteredTodayData] = useState<any>(null);
+
+  const mainWeatherInfoData: Array<MainWeatherInfoProps> = [
+    {
+      icon: require("./assets/MinTempIcon.png"),
+      value: weatherInfo?.data.forecast.forecastday[0].day.mintemp_c.toFixed(0),
+      measure: "ºC",
+    },
+    {
+      icon: require("./assets/MaxTempIcon.png"),
+      value: weatherInfo?.data.forecast.forecastday[0].day.maxtemp_c.toFixed(0),
+      measure: "ºC",
+    },
+    {
+      icon: require("./assets/UmidityIcon.png"),
+      value: weatherInfo?.data.current.precip_mm.toFixed(0),
+      measure: "mm",
+    },
+    {
+      icon: require("./assets/WindIcon.png"),
+      value: weatherInfo?.data.current.wind_kph.toFixed(0),
+      measure: "km/h",
+    },
+  ];
 
   useEffect(() => {
     (async () => {
@@ -68,7 +94,8 @@ export default function App() {
           response.data.forecast.forecastday[0].hour.filter((item: any) => {
             let hours = new Date(item.time).getHours();
 
-            if (hours > currentLocalHours) return item;
+            if (currentLocalHours === 23 || hours > currentLocalHours)
+              return item;
           });
         setFilteredTodayData(filteredTodayData);
         console.log(filteredTodayData);
@@ -113,350 +140,176 @@ export default function App() {
     );
   }
 
-  interface MainWeatherInfoProps {
-    value: number;
-    measure: "ºC" | "mm" | "km/h";
-    icon: ImageSourcePropType;
-  }
-
-  function MainWeatherInfoCard(props: MainWeatherInfoProps) {
-    return (
-      <View style={{ flexDirection: "row", alignItems: "center" }}>
-        <Image
-          source={props.icon}
-          style={styles.mainWeatherInfoIcon}
-          resizeMode="contain"
-        />
-        <Text style={[styles.regularFont, { fontSize: 16 }]}>
-          {props.value}
-        </Text>
-        <Text
-          style={[
-            styles.regularFont,
-            {
-              fontSize: 10,
-              height: 19,
-              textAlignVertical: "bottom",
-            },
-          ]}
-        >
-          {" "}
-          {props.measure}
-        </Text>
-      </View>
-    );
-  }
-
   return (
-    <KeyboardAvoidingView
-      style={{ height: "100%", width: "100%" }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -250}
-    >
-      <ImageBackground
-        style={styles.background}
-        source={require("./assets/MainScreenBackground.jpg")}
+    <SafeAreaView style={styles.fullScreen}>
+      <KeyboardAvoidingView
+        style={styles.fullScreen}
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -250}
       >
-        <StatusBarExpo style={"light"} />
-
-        <View
-          style={{
-            backgroundColor: "transparent",
-            height: 45 * vh,
-            justifyContent: "space-between",
-            width: "100%",
-            alignItems: "center",
-            marginTop: StatusBar.currentHeight,
-            paddingTop: 20,
-            paddingBottom: 40,
-          }}
+        <ImageBackground
+          style={styles.background}
+          source={require("./assets/MainScreenBackground.jpg")}
         >
-          <View style={styles.searchContainer}>
-            <Image source={require("./assets/SearchIcon.png")} />
-            <View style={{ flex: 1, marginLeft: 4 }}>
-              <TextInput
-                style={styles.searchTextInput}
-                placeholder={"Pesquisar localidade"}
-                placeholderTextColor={"rgba(255, 255, 255, 0.7)"}
-                onChangeText={(text) => setLocationInput(text)}
-                onSubmitEditing={() => {
-                  setLocation(locationInput);
-                }}
-                autoComplete="postal-address-region"
-              />
-              <View style={styles.searchLine}></View>
+          <StatusBarExpo style={"light"} />
+
+          <View style={styles.topSection}>
+            <SearchLocation
+              onChangeText={(text) => setLocationInput(text)}
+              onSubmitEditing={() => setLocation(locationInput)}
+            />
+
+            <View style={styles.location}>
+              <Text style={styles.locationCityText}>
+                {weatherInfo?.data.location.name},{" "}
+              </Text>
+              <Text style={styles.locationRegionText}>
+                {weatherInfo?.data.location.region}
+              </Text>
             </View>
-          </View>
 
-          <View style={{ flexDirection: "row" }}>
-            <Text
-              style={{
-                textAlign: "center",
-                fontFamily: "Cabin-Bold",
-                color: "rgba(255,255,255,0.9)",
-                fontSize: 15,
-              }}
-            >
-              {weatherInfo?.data.location.name},{" "}
-            </Text>
-            <Text
-              style={{
-                textAlign: "center",
-                fontFamily: "Cabin-Bold",
-                color: "rgba(255,255,255,0.75)",
-                fontSize: 15,
-              }}
-            >
-              {weatherInfo?.data.location.region}
-            </Text>
-          </View>
-
-          <View style={styles.mainBox}>
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <View
-                style={{
-                  alignItems: "center",
-                  justifyContent: "center",
-                  height: 100,
-                  width: 100,
-                }}
-              >
-                <Image
-                  source={
-                    weatherInfo?.data.current.is_day == 1
-                      ? iconsCodeToPath.day[
-                          weatherInfo?.data.current.condition.code
-                        ]
-                      : iconsCodeToPath.night[
-                          weatherInfo?.data.current.condition.code
-                        ]
-                  }
-                  style={{ width: "100%", height: "100%" }}
-                  resizeMode="center"
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: "column",
-                  justifyContent: "flex-end",
-                  alignItems: "center",
-                }}
-              >
-                <Text style={[styles.regularFont, { fontSize: 48 }]}>
-                  {weatherInfo?.data.current.temp_c}
+            <View style={styles.mainBox}>
+              <View style={styles.mainContainer}>
+                <View style={styles.mainImageContainer}>
+                  <Image
+                    source={
+                      weatherInfo?.data.current.is_day == 1
+                        ? iconsCodeToPath.day[
+                            weatherInfo?.data.current.condition.code
+                          ]
+                        : iconsCodeToPath.night[
+                            weatherInfo?.data.current.condition.code
+                          ]
+                    }
+                    style={styles.mainImage}
+                  />
+                </View>
+                <Text style={styles.mainBoxText}>
+                  {weatherInfo?.data.current.temp_c.toFixed(0)}
                   {"ºC"}
                 </Text>
               </View>
-            </View>
-            <View
-              style={{
-                justifyContent: "space-between",
-              }}
-            >
-              <MainWeatherInfoCard
-                icon={require("./assets/MinTempIcon.png")}
-                value={weatherInfo?.data.forecast.forecastday[0].day.mintemp_c}
-                measure={"ºC"}
-              />
-              <MainWeatherInfoCard
-                icon={require("./assets/MaxTempIcon.png")}
-                value={weatherInfo?.data.forecast.forecastday[0].day.maxtemp_c}
-                measure={"ºC"}
-              />
-              <MainWeatherInfoCard
-                icon={require("./assets/UmidityIcon.png")}
-                value={weatherInfo?.data.current.precip_mm}
-                measure={"mm"}
-              />
-              <MainWeatherInfoCard
-                icon={require("./assets/WindIcon.png")}
-                value={weatherInfo?.data.current.wind_kph}
-                measure={"km/h"}
-              />
+              <View style={styles.mainWeatherInfoBox}>
+                {mainWeatherInfoData.map((item, index) => (
+                  <MainWeatherInfoItem
+                    key={index}
+                    icon={item.icon}
+                    value={item.value}
+                    measure={item.measure}
+                  />
+                ))}
+              </View>
             </View>
           </View>
-        </View>
 
-        <View
-          style={{
-            height: 55 * vh,
-            width: "100%",
-            backgroundColor: "transparent",
-            alignItems: "center",
-          }}
-        >
-          <View style={{ width: "85%", marginBottom: 16 }}>
-            <Text
-              style={[
-                styles.regularFont,
-                {
-                  color: "rgba(255,255,255,0.9)",
-                  fontSize: 15,
-                  marginLeft: 8,
-                  marginBottom: 4,
-                },
-              ]}
-            >
-              Hoje
-            </Text>
-            <View
-              style={{
-                height: 1,
-                backgroundColor: "rgba(255,255,255,0.4)",
-                marginBottom: 16,
-              }}
-            />
+          <View style={styles.bottomSection}>
+            <View style={styles.periodInfo}>
+              <Text style={styles.periodText}>
+                {new Date(weatherInfo?.data.location.localtime).getHours() !==
+                23
+                  ? "Hoje"
+                  : "Amanhã"}
+              </Text>
+              <View style={styles.periodLine} />
 
-            <FlatList
-              data={filteredTodayData} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
-              keyExtractor={(item) => item?.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
-              style={{ width: 80 * vw, alignSelf: "center" }}
-              contentContainerStyle={{ gap: (80 * vw - 70 * 3) / 2 }}
-              showsHorizontalScrollIndicator={false}
-              horizontal={true}
-              renderItem={({ item }) => {
-                let hours = new Date(item.time).getHours();
+              <FlatList
+                data={filteredTodayData} // Dados provenientes da lista de informacoes hora a hora da API referente ao dia atual
+                keyExtractor={(item) => item?.time} // Identificador se trata do time vide a data e horario serem unicos a cada item
+                style={styles.periodContainer}
+                contentContainerStyle={styles.periodContent}
+                showsHorizontalScrollIndicator={false}
+                horizontal={true}
+                renderItem={({ item }) => {
+                  let hours = new Date(item.time).getHours();
 
-                return (
-                  <View
-                    style={{
-                      backgroundColor: "transparent",
-                      width: 70,
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.regularFont,
-                        { color: "rgba(255,255,255,0.9)", fontSize: 15 },
-                      ]}
-                    >
-                      {hours < 10 ? `0${hours}:00` : `${hours}:00`}
-                    </Text>
-                    <View
-                      style={{
-                        height: 36,
-                        width: 36,
-                        justifyContent: "center",
-                        alignItems: "center",
+                  return (
+                    <PeriodicItemCard
+                      hours={hours}
+                      value={item?.temp_c.toFixed(0)}
+                      icon={
+                        item.is_day == 1
+                          ? iconsCodeToPath.day[item.condition.code]
+                          : iconsCodeToPath.night[item.condition.code]
+                      }
+                      periodicity="today"
+                    />
+                  );
+                }}
+              />
+            </View>
+
+            <View style={styles.periodInfo}>
+              <Text style={styles.periodText}>Semana</Text>
+              <View style={styles.periodLine} />
+
+              <FlatList
+                data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API
+                keyExtractor={(item) => item.date} // Identificador se trata da data vide ser unica a cada item
+                style={styles.periodContainer}
+                contentContainerStyle={styles.periodContent}
+                showsHorizontalScrollIndicator={false}
+                horizontal={true}
+                renderItem={({ item }) => {
+                  let dayOfWeek = new Date(item.date).getDay();
+
+                  return (
+                    <PeriodicItemCard
+                      dayOfWeek={days[dayOfWeek]}
+                      value={{
+                        maxValue: item.day.maxtemp_c.toFixed(0),
+                        minValue: item.day.mintemp_c.toFixed(0),
                       }}
-                    >
-                      <Image
-                        source={
-                          item.is_day == 1
-                            ? iconsCodeToPath.day[item.condition.code]
-                            : iconsCodeToPath.night[item.condition.code]
-                        }
-                        style={{ height: 36, width: 36, resizeMode: "contain" }}
-                      />
-                    </View>
-                    <Text style={[styles.regularFont, { fontSize: 14 }]}>
-                      {item?.temp_c}ºC
-                    </Text>
-                  </View>
-                );
-              }}
-            />
+                      icon={
+                        item.is_day == 1
+                          ? iconsCodeToPath.day[item.day.condition.code]
+                          : iconsCodeToPath.night[item.day.condition.code]
+                      }
+                      periodicity="week"
+                    />
+                  );
+                }}
+              />
+            </View>
           </View>
-
-          <View style={{ width: "85%", marginBottom: 16 }}>
-            <Text
-              style={[
-                styles.regularFont,
-                {
-                  color: "rgba(255,255,255,0.9)",
-                  fontSize: 15,
-                  marginLeft: 8,
-                  marginBottom: 4,
-                },
-              ]}
-            >
-              Semana
-            </Text>
-            <View
-              style={{
-                height: 1,
-                backgroundColor: "rgba(255,255,255,0.4)",
-                marginBottom: 16,
-              }}
-            />
-
-            <FlatList
-              data={weatherInfo?.data.forecast.forecastday} // Dados provenientes da lista de informacoes dos proximos 7 dias da API
-              keyExtractor={(item) => item.date} // Identificador se trata da data vide ser unica a cada item
-              style={{ width: 80 * vw, alignSelf: "center" }}
-              contentContainerStyle={{ gap: (80 * vw - 70 * 3) / 2 }}
-              showsHorizontalScrollIndicator={false}
-              horizontal={true}
-              renderItem={({ item }) => {
-                let dayOfWeek = new Date(item.date).getDay();
-
-                return (
-                  <View
-                    style={{
-                      backgroundColor: "transparent",
-                      width: 70,
-                      alignItems: "center",
-                      gap: 10,
-                    }}
-                  >
-                    <Text
-                      style={[
-                        styles.regularFont,
-                        { color: "rgba(255,255,255,0.9)", fontSize: 15 },
-                      ]}
-                    >
-                      {days[dayOfWeek]}
-                    </Text>
-                    <View
-                      style={{
-                        height: 36,
-                        width: 36,
-                        justifyContent: "center",
-                        alignItems: "center",
-                      }}
-                    >
-                      <Image
-                        source={iconsCodeToPath.day[item.day.condition.code]}
-                        style={{ height: 36, width: 36, resizeMode: "contain" }}
-                      />
-                    </View>
-                    <View style={{ flexDirection: "row", gap: 8 }}>
-                      <Text style={[styles.regularFont, { fontSize: 14 }]}>
-                        {item.day.maxtemp_c}º
-                      </Text>
-                      <Text
-                        style={[
-                          styles.regularFont,
-                          { fontSize: 14, color: "rgba(255,255,255,0.7)" },
-                        ]}
-                      >
-                        {item.day.mintemp_c}º
-                      </Text>
-                    </View>
-                  </View>
-                );
-              }}
-            />
-          </View>
-        </View>
-      </ImageBackground>
-    </KeyboardAvoidingView>
+        </ImageBackground>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+  },
   background: {
-    alignItems: "center",
-    justifyContent: "center",
-    width: "100%",
     height: "100%",
+    width: "100%",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  topSection: {
+    height: 45 * vh,
+    width: "100%",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: StatusBar.currentHeight,
+    paddingTop: 20,
+    paddingBottom: 40,
+  },
+  location: {
+    flexDirection: "row",
+  },
+  locationCityText: {
+    fontFamily: "Cabin-Bold",
+    fontSize: 15,
+    color: "rgba(255,255,255,0.9)",
+    textAlign: "center",
+  },
+  locationRegionText: {
+    fontFamily: "Cabin-Bold",
+    fontSize: 15,
+    color: "rgba(255,255,255,0.75)",
+    textAlign: "center",
   },
   searchContainer: {
     flexDirection: "row",
@@ -464,33 +317,68 @@ const styles = StyleSheet.create({
     width: "85%",
   },
   searchTextInput: {
-    fontFamily: "Cabin-Regular",
-    color: "rgba(255, 255, 255, 0.7)",
     width: "100%",
     marginLeft: 5,
+    fontFamily: "Cabin-Regular",
+    color: "rgba(255, 255, 255, 0.7)",
   },
   searchLine: {
     height: 1,
     backgroundColor: "rgba(255, 255, 255, 0.4)",
   },
   mainBox: {
-    flexDirection: "row",
-    backgroundColor: "transparent",
     height: 150,
     gap: 50,
+    backgroundColor: "transparent",
+    flexDirection: "row",
   },
-  regularFont: {
-    // fontSize: 48,
+  mainContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mainImageContainer: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  mainImage: {
+    height: 100,
+    width: 100,
+    resizeMode: "contain",
+  },
+  mainBoxText: {
     fontFamily: "Cabin-Regular",
+    fontSize: 48,
     color: "white",
   },
-  boldFont: {
-    // fontSize: 48,
-    fontFamily: "Cabin-Bold",
-    color: "white",
+  mainWeatherInfoBox: {
+    justifyContent: "space-between",
   },
-  mainWeatherInfoIcon: {
-    width: 30,
-    marginRight: 8,
+  bottomSection: {
+    height: 55 * vh,
+    width: "100%",
+    alignItems: "center",
+  },
+  periodInfo: {
+    width: "85%",
+    marginBottom: 16,
+  },
+  periodText: {
+    fontFamily: "Cabin-Regular",
+    fontSize: 15,
+    color: "rgba(255,255,255,0.9)",
+    marginLeft: 8,
+    marginBottom: 4,
+  },
+  periodLine: {
+    height: 1,
+    backgroundColor: "rgba(255,255,255,0.4)",
+    marginBottom: 16,
+  },
+  periodContainer: { 
+    width: 80 * vw, 
+    alignSelf: "center" 
+  },
+  periodContent: { 
+    gap: (80 * vw - 70 * 3) / 2 // Calculo para fazer com que apareça 3 itens em tela na Flatlist de período
   },
 });

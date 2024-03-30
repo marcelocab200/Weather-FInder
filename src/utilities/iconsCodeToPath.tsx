@@ -1,7 +1,7 @@
 import { ImageSourcePropType } from "react-native";
 
 interface IconPaths {
-  [code: string]: ImageSourcePropType;
+  [code: number]: ImageSourcePropType;
 }
 
 interface IconsByTime {
@@ -59,7 +59,6 @@ const iconsCodeToPath: IconsByTime = {
     1279: require("../../assets/weatherIcons/day/392.png"),
     1282: require("../../assets/weatherIcons/day/395.png"),
   },
-
   night: {
     1000: require("../../assets/weatherIcons/night/113.png"),
     1003: require("../../assets/weatherIcons/night/116.png"),
