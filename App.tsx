@@ -34,6 +34,9 @@ import PeriodicItemCard from "./src/components/PeriodicInfoCard";
 
 import { MainWeatherInfoProps } from "./src/components/MainWeatherInfoItem";
 
+import { WeatherWidgetPreviewScreen } from "./src/widget/WidgetPreview";
+
+
 const { width, height } = Dimensions.get("window");
 const vw = width / 100;
 const vh = height / 100;
@@ -259,11 +262,7 @@ export default function App() {
                         maxValue: item.day.maxtemp_c.toFixed(0),
                         minValue: item.day.mintemp_c.toFixed(0),
                       }}
-                      icon={
-                        item.is_day == 1
-                          ? iconsCodeToPath.day[item.day.condition.code]
-                          : iconsCodeToPath.night[item.day.condition.code]
-                      }
+                      icon={iconsCodeToPath.day[item.day.condition.code]}
                       periodicity="week"
                     />
                   );
