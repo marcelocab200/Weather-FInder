@@ -12,6 +12,7 @@ import {
   Alert,
   FlatList,
   Platform,
+  TouchableOpacity,
 } from "react-native";
 
 import { useState, useEffect } from "react";
@@ -44,7 +45,10 @@ export default function App() {
   const [location, setLocation] = useState<string>("");
   const [locationInput, setLocationInput] = useState<string>("");
   const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
+  const [autoCompleteSearch, setAutoCompleteSearch] = useState<Array<object> | null>(null);
   const [filteredTodayData, setFilteredTodayData] = useState<any>(null);
+  const [isSearchInputSelected, setIsSearchInputSelected] = useState<boolean>(false);
+
 
   const mainWeatherInfoData: Array<MainWeatherInfoProps> = [
     {
@@ -118,7 +122,8 @@ export default function App() {
               lang: "pt",
             },
           });
-          console.log(response.data);
+          setAutoCompleteSearch(response.data.slice(0,4))
+          console.log(response.data.slice(0,4));
         } catch (error: any) {
           Alert.alert("OPS! Ocorreu um erro:", error);
           console.log(error);
@@ -147,16 +152,20 @@ export default function App() {
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : -250}
       >
-        <ImageBackground
+        <ImageBackground 
           style={styles.background}
           source={require("./assets/MainScreenBackground.jpg")}
         >
           <StatusBarExpo style={"light"} />
 
-          <View style={styles.topSection}>
+          <View  style={styles.topSection}>
             <SearchLocation
               onChangeText={(text) => setLocationInput(text)}
               onSubmitEditing={() => setLocation(locationInput)}
+              onFocus={() => setIsSearchInputSelected(true)}
+              onBlur={() => setIsSearchInputSelected(false)}
+              isSelected={isSearchInputSelected}
+              autoCompleteData={autoCompleteSearch}
             />
 
             <View style={styles.location}>
