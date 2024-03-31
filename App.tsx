@@ -47,7 +47,7 @@ export default function App() {
   const [weatherInfo, setWeatherInfo] = useState<AxiosResponse | null>(null);
   const [autoCompleteSearch, setAutoCompleteSearch] = useState<Array<object> | null>(null);
   const [filteredTodayData, setFilteredTodayData] = useState<any>(null);
-  const [isSearchInputSelected, setIsSearchInputSelected] = useState<boolean>(false);
+  const [isInputOnFocus, setIsInputOnFocus] = useState<boolean>(false)
 
 
   const mainWeatherInfoData: Array<MainWeatherInfoProps> = [
@@ -145,6 +145,13 @@ export default function App() {
     );
   }
 
+  function handleItemSelection(data: any) {
+    setLocation(data)
+    setLocationInput("")
+    setAutoCompleteSearch(null)
+  }
+
+
   return (
     <SafeAreaView style={styles.fullScreen}>
       <KeyboardAvoidingView
@@ -160,12 +167,14 @@ export default function App() {
 
           <View  style={styles.topSection}>
             <SearchLocation
+              inputValue={locationInput}
               onChangeText={(text) => setLocationInput(text)}
-              onSubmitEditing={() => setLocation(locationInput)}
-              onFocus={() => setIsSearchInputSelected(true)}
-              onBlur={() => setIsSearchInputSelected(false)}
-              isSelected={isSearchInputSelected}
+              // onSubmitEditing={() => {setLocation(locationInput); setLocationInput("")}}
               autoCompleteData={autoCompleteSearch}
+              onItemSelection={handleItemSelection}
+              onFocus={() => setIsInputOnFocus(true)}
+              onBlur={() => setIsInputOnFocus(false)}
+              isSelected={isInputOnFocus}
             />
 
             <View style={styles.location}>

@@ -1,5 +1,5 @@
 import { BlurView } from "expo-blur";
-import { ReactNode } from "react";
+import { ReactNode, useState, useRef } from "react";
 import {
   View,
   Image,
@@ -12,8 +12,10 @@ import {
 interface SearchLocationProps {
   onChangeText: (text: string) => void;
   onSubmitEditing: () => void;
+  onItemSelection: (data: any) => void; 
   onFocus: () => void;
   onBlur: () => void;
+  inputValue: string;
   isSelected: boolean;
   autoCompleteData: Array<object>;
   children?: ReactNode;
@@ -27,15 +29,24 @@ const testList = [
 ];
 
 export default function SearchLocation(props: SearchLocationProps) {
+  const inputRef = useRef<TextInput>(null)
+
+  // function handleItemSelection(item: any) {
+  //   inputRef.current?.blur(); 
+  //   props.onItemSelection(`${item.name}, ${item.region}`);
+  // }
+
   return (
     <View style={styles.fullContainer}>
       <Image source={require("../../assets/SearchIcon.png")} />
       <View style={styles.searchContainer}>
         <TextInput
+          ref={inputRef}
           style={styles.textInput}
           placeholder={"Pesquisar localidade"}
           placeholderTextColor={"rgba(255, 255, 255, 0.7)"}
           selectionColor={"rgba(255, 255, 255, 0.4)"}
+          value={props.inputValue}
           onChangeText={props.onChangeText}
           onSubmitEditing={props.onSubmitEditing}
           onFocus={props.onFocus}
@@ -43,7 +54,7 @@ export default function SearchLocation(props: SearchLocationProps) {
         />
         <View style={styles.searchLine} />
       </View>
-      {props.isSelected && (
+      {(props.isSelected && props.autoCompleteData?.length > 0) && (
         <View
           style={{
             flex: 1,
@@ -88,6 +99,7 @@ export default function SearchLocation(props: SearchLocationProps) {
                       paddingHorizontal: 24,
                       justifyContent: "center",
                     }}
+                    onPress={() => {inputRef.current?.blur(); props.onItemSelection(`${item.name}, ${item.region}`)}}
                   >
                     <Text
                       style={{
