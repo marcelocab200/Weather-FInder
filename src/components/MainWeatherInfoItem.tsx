@@ -2,15 +2,10 @@ import {
   View,
   Image,
   Text,
-  StyleSheet,
-  ImageSourcePropType,
+  StyleSheet
 } from "react-native";
 
-export interface MainWeatherInfoProps {
-  value: number;
-  measure: "ºC" | "mm" | "km/h";
-  icon: ImageSourcePropType;
-}
+import MainWeatherInfoProps from "../types/MainWeatherInfoItem";
 
 export default function MainWeatherInfoItem(props: MainWeatherInfoProps) {
   return (

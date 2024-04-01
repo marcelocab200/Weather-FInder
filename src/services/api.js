@@ -2,8 +2,8 @@ import axios from 'axios'
 
 // More info: https://www.weatherapi.com/docs/
 
-const api = axios.create({
+const Api = axios.create({
     baseURL: "http://api.weatherapi.com/v1"
 })
 
-export default api
+export default Api

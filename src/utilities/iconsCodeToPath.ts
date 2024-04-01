@@ -1,12 +1,4 @@
-import { ImageSourcePropType } from "react-native";
-
-interface IconPaths {
-  [code: number]: ImageSourcePropType;
-}
-
-interface IconsByTime {
-  [time: string]: IconPaths;
-}
+import IconsByTime from "../types/IconsByTime";
 
 const iconsCodeToPath: IconsByTime = {
   day: {
