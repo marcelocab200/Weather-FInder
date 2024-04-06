@@ -10,10 +10,11 @@ Tabela de Conteúdos:
 
 1. Instalação
 2. Uso
-3. Contribuição
-4. Licença
+3. Tecnologias utilizadas
+4. Contribuição
 5. Contato
-6. Créditos
+6. Licença
+7. Créditos
 
 
 # Instalação:
