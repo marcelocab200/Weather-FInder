@@ -36,6 +36,7 @@ Para instalar e executar o Weather Finder localmente, siga estas etapas:
 
 
 - Configure as chaves da API:
+
 Antes de executar o aplicativo, é necessário obter uma chave de API da Weather API e configurá-la no projeto. 
 Você pode adquiri-la em:
 https://www.weatherapi.com
@@ -67,6 +68,14 @@ Após iniciar o aplicativo, você pode usá-lo para:
 - Pesquisar o clima em diferentes localidades.
 
 
+# Tecnologias utilizadas
+
+- React Native
+- TypeScript
+- Axios
+- Weather API
+
+
 # Contribuição:
 
 Se desejar contribuir com o Weather Finder, siga estas etapas:
@@ -78,9 +87,16 @@ Se desejar contribuir com o Weather Finder, siga estas etapas:
 - Crie um novo Pull Request
 
 
+# Contato:
+
+Para mais informações sobre o projeto, entre em contato:
+marcelocab200@gmail.com
+
+
 # Licença:
 
 Este projeto é licenciado sob a MIT License.
+
 
 # Créditos:
 
