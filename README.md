@@ -4,7 +4,7 @@
 
 # Descrição:
 
-O Weather Finder é um aplicativo de informações climáticas desenvolvido em React Native e TypeScript. Ele permite aos usuários visualizar o clima atual e a previsão do tempo para a semana, além de buscar informações climáticas em diferentes localidades.
+O Weather Finder é um aplicativo de informações climáticas desenvolvido em React Native com o Expo. Ele permite aos usuários visualizar o clima atual e a previsão do tempo para a semana, além de buscar informações climáticas em diferentes localidades.
 
 Tabela de Conteúdos:
 
