@@ -68,6 +68,7 @@ Após iniciar o aplicativo, você pode usá-lo para:
 - Visualizar a previsão do tempo para os próximos dias.
 - Pesquisar o clima em diferentes localidades.
 
+![Daily GIF](https://github.com/marcelocab200/Weather-Finder/blob/master/assets/Daily-GIF.gif?raw=true) ![Search GIF](https://github.com/marcelocab200/Weather-Finder/blob/master/assets/Search-GIF.gif?raw=true)
 
 # Tecnologias utilizadas
 
