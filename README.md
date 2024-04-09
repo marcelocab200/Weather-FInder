@@ -52,7 +52,7 @@ https://www.weatherapi.com
 
 - Adicione sua chave de API no arquivo .env:
 
-`WEATHER_API_KEY=SuaChaveDaWeatherAPI`
+`API_KEY=SuaChaveDaWeatherAPI`
 
 
 - Inicie o aplicativo:
